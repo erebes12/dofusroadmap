@@ -4,15 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Roadmap Dofus — Duo</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23E7A9E0'/%3E%3Cstop offset='100%25' stop-color='%23F7B3CE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='50' cy='58' rx='38' ry='32' fill='url(%23g)' stroke='%23993556' stroke-width='4'/%3E%3Cpath d='M50 26 Q42 10 30 14 Q34 26 44 30 Z' fill='%23D4537E' stroke='%23993556' stroke-width='3'/%3E%3Cpath d='M50 26 Q58 10 70 14 Q66 26 56 30 Z' fill='%23D4537E' stroke='%23993556' stroke-width='3'/%3E%3Cellipse cx='38' cy='55' rx='6' ry='8' fill='%23FFFFFF' opacity='0.85'/%3E%3Cellipse cx='60' cy='62' rx='4' ry='5' fill='%23FFFFFF' opacity='0.6'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,6 72,28 94,32 68,40 50,94 32,40 6,32 28,28' fill='%23C23A6B'/%3E%3Cpolygon points='50,6 72,28 50,40' fill='%23F9C6DC'/%3E%3Cpolygon points='50,6 28,28 50,40' fill='%23F195BE'/%3E%3Cpolygon points='72,28 94,32 68,40 50,40' fill='%23E2679B'/%3E%3Cpolygon points='28,28 6,32 32,40 50,40' fill='%23D8548D'/%3E%3Cpolygon points='68,40 94,32 50,94' fill='%23A5285A'/%3E%3Cpolygon points='32,40 6,32 50,94' fill='%23B8386B'/%3E%3Cpolygon points='50,40 68,40 50,94' fill='%23902450'/%3E%3Cpolygon points='50,40 32,40 50,94' fill='%23C1477D'/%3E%3Cpolygon points='45,14 50,6 55,14 50,22' fill='%23FFFFFF' opacity='0.75'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C; --blue-900: #042C53;
-    --pink-50: #FBEAF0; --pink-100: #F4C0D1; --pink-400: #D4537E; --pink-600: #993556; --pink-800: #72243E; --pink-900: #4B1528;
-    --amber-400: #EF9F27; --amber-800: #633806;
+    --blue-800: #0C447C; --blue-900: #042C53;
+    --pink-800: #72243E; --pink-900: #4B1528;
     --glass-bg: rgba(255,255,255,0.32);
     --glass-border: rgba(255,255,255,0.45);
     --text-main: #2C2C2A;
@@ -68,7 +67,8 @@
 
   .palier-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; margin-bottom: 4px; }
   .palier-head-left { display: flex; align-items: center; gap: 8px; }
-  .palier-title { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 17px; margin: 0; } .palier-title::before { content: '✧ '; color: #D4537E; }
+  .palier-title { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 17px; margin: 0; }
+  .palier-title::before { content: '✧ '; color: #D4537E; }
   .active-tag { font-size: 10px; font-weight: 700; background: linear-gradient(90deg,#E7A9E0,#F7B3CE); color: #4B1528; padding: 2px 8px; border-radius: 999px; }
   .palier-count { font-size: 12px; color: var(--text-soft); white-space: nowrap; }
   .chevron { font-size: 12px; color: var(--text-soft); transition: transform 0.2s ease; }
@@ -155,7 +155,7 @@
   </div>
 
   <div id="headlineBox" class="glass headline" style="display:none;">
-    <span class="emoji" id="headlineEmoji">🎯</span>
+    <span class="emoji" id="headlineEmoji">🌸</span>
     <div><p id="headlineText"></p><p class="sub" id="headlineSub"></p></div>
   </div>
 
@@ -184,7 +184,7 @@ const ROADMAP = [{"id": "p1", "title": "Pr\u00e9ambule", "zones": ["Pr\u00e9ambu
 ;
 const CLASSDATA = {"classes": [{"name": "Ecaflip", "role": "Polyvalent / chance", "desc": "Joue sur le hasard et les critiques. Gameplay fun et impr\u00e9visible, bon en solo comme en groupe."}, {"name": "Eniripsa", "role": "Soigneur", "desc": "Le soigneur de r\u00e9f\u00e9rence. Toujours utile en groupe, indispensable en donjon difficile."}, {"name": "Iop", "role": "D\u00e9g\u00e2ts m\u00eal\u00e9e", "desc": "Simple \u00e0 prendre en main, d\u00e9g\u00e2ts bruts au corps \u00e0 corps. Excellent choix pour d\u00e9buter."}, {"name": "Cr\u00e2", "role": "D\u00e9g\u00e2ts distance", "desc": "Frappe de loin en restant en s\u00e9curit\u00e9. Tr\u00e8s accessible, parfait pour farmer sans stress."}, {"name": "F\u00e9ca", "role": "Tank / protecteur", "desc": "Pose des boucliers et prot\u00e8ge son \u00e9quipe. Tr\u00e8s polyvalent, appr\u00e9ci\u00e9 en groupe."}, {"name": "Sacrieur", "role": "Tank encaisseur", "desc": "Punit l'adversaire en prenant des d\u00e9g\u00e2ts. Simple \u00e0 comprendre, bon perso pour absorber les coups."}, {"name": "Sadida", "role": "Invocateur", "desc": "Invoque des poup\u00e9es qui combattent et soignent \u00e0 sa place. Excellent en solo."}, {"name": "Osamodas", "role": "Invocateur / soin", "desc": "Combine d\u00e9g\u00e2ts et soins continus via ses invocations. Tr\u00e8s fort et gratifiant \u00e0 jouer."}, {"name": "Enutrof", "role": "Support / kamas", "desc": "Ralentit et affaiblit l'adversaire, excelle dans la prospection et le farm de kamas."}, {"name": "Sram", "role": "D\u00e9g\u00e2ts sournois", "desc": "Pi\u00e8ges et invisibilit\u00e9, d\u00e9g\u00e2ts critiques \u00e9lev\u00e9s. Demande un peu plus de ma\u00eetrise."}, {"name": "X\u00e9lor", "role": "Contr\u00f4le du temps", "desc": "G\u00e8le et manipule les tours de jeu adverses. Gameplay riche mais plus technique."}, {"name": "Pandawa", "role": "Positionnement", "desc": "Pousse et d\u00e9place les ennemis avec un gameplay bas\u00e9 sur l'ivresse. Original et fun."}, {"name": "Roublard", "role": "D\u00e9g\u00e2ts \u00e0 zone", "desc": "Pose des bombes et des murs de glyphes pour infliger des d\u00e9g\u00e2ts de zone."}, {"name": "Zobal", "role": "Polyvalent masqu\u00e9", "desc": "Change de masque pour adapter son style de jeu selon la situation."}, {"name": "Steamer", "role": "D\u00e9g\u00e2ts \u00e0 distance", "desc": "Tr\u00e8s efficace en d\u00e9but de jeu, notamment gr\u00e2ce \u00e0 des sorts qui poussent les ennemis."}, {"name": "Eliotrope", "role": "Mobilit\u00e9 / portails", "desc": "Se t\u00e9l\u00e9porte via des portails pour se repositionner et frapper. Gameplay original."}, {"name": "Huppermage", "role": "Polyvalent \u00e9l\u00e9mentaire", "desc": "G\u00e8re d\u00e9g\u00e2ts, positionnement et zones dans les 4 \u00e9l\u00e9ments. Accessible mais riche \u00e0 ma\u00eetriser."}, {"name": "Ouginak", "role": "D\u00e9g\u00e2ts m\u00eal\u00e9e / poursuite", "desc": "Traque et ach\u00e8ve les ennemis affaiblis. Bon corps \u00e0 corps avec de la mobilit\u00e9."}, {"name": "Forgelance", "role": "D\u00e9g\u00e2ts \u00e0 distance / zone", "desc": "Classe plus r\u00e9cente ax\u00e9e sur les tirs \u00e0 distance et le contr\u00f4le de zone via des m\u00e9canismes de forge."}], "duos": [{"title": "Tank + soin", "classes": ["F\u00e9ca", "Eniripsa"], "why": "Un prot\u00e8ge, l'autre soigne : duo increvable, tr\u00e8s confortable pour d\u00e9couvrir les donjons sans stress."}, {"title": "M\u00eal\u00e9e simple + distance simple", "classes": ["Iop", "Cr\u00e2"], "why": "Les deux classes les plus accessibles du jeu. Id\u00e9al quand une personne d\u00e9couvre totalement le genre."}, {"title": "Encaisseur + invocateur", "classes": ["Sacrieur", "Sadida"], "why": "Le Sacrieur prend les coups pendant que les poup\u00e9es du Sadida nettoient le terrain."}, {"title": "Soin double-tranchant", "classes": ["Osamodas", "Eniripsa"], "why": "Beaucoup de soin et de r\u00e9silience \u00e0 deux, tr\u00e8s rassurant pour une d\u00e9couverte tranquille."}, {"title": "Contr\u00f4le + d\u00e9g\u00e2ts", "classes": ["X\u00e9lor", "Iop"], "why": "Le X\u00e9lor ralentit et g\u00e8le pendant que l'Iop finit le travail en m\u00eal\u00e9e."}]}
 ;
-const TIPS_PALIER_LIMIT = 4; // conseils affichés seulement sur les N premiers paliers
+const TIPS_PALIER_LIMIT = 4;
 
 const SUPABASE_URL = "https://ijxjrjgxciodlimrcxff.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_0HFDrE0kXs03ngxLy_vbJg_LkjcPgSS";
@@ -194,7 +194,7 @@ if (SUPABASE_URL !== "YOUR_SUPABASE_URL") {
 }
 
 let state = { players: { p1: "Joueur 1", p2: "Joueur 2" }, progress: {} };
-let manualOverride = {}; // paliers ouverts/fermés manuellement par l'utilisateur
+let manualOverride = {};
 
 function taskDone(taskId, player) { return !!(state.progress[taskId] && state.progress[taskId][player]); }
 
@@ -407,7 +407,6 @@ document.getElementById('saveSettings').addEventListener('click', () => {
 
 loadState();
 
-// Temps réel : écoute les changements faits par l'autre joueur
 if (sbClient) {
   sbClient.channel('progress-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, (payload) => {
