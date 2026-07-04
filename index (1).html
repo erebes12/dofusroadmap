@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap Dofus — Duo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C; --blue-900: #042C53;
+    --pink-50: #FBEAF0; --pink-100: #F4C0D1; --pink-400: #D4537E; --pink-600: #993556; --pink-800: #72243E; --pink-900: #4B1528;
+    --glass-bg: rgba(255,255,255,0.32);
+    --glass-border: rgba(255,255,255,0.45);
+    --text-main: #2C2C2A;
+    --text-soft: #5F5E5A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    color: var(--text-main);
+    background: linear-gradient(160deg, #dceeff 0%, #fbe6f0 45%, #eef6ff 100%);
+    background-attachment: fixed;
+  }
+  .bg-blob {
+    position: fixed; border-radius: 50%; filter: blur(60px); z-index: 0; opacity: 0.55; pointer-events: none;
+  }
+  .blob1 { width: 420px; height: 420px; background: #85B7EB; top: -120px; left: -100px; }
+  .blob2 { width: 380px; height: 380px; background: #ED93B1; bottom: -100px; right: -80px; }
+  .wrap { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  h1 { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 26px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-soft); font-size: 14px; margin: 0 0 20px; }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+  }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; }
+  .players-btn {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid var(--glass-border); background: var(--glass-bg); backdrop-filter: blur(8px);
+    font-size: 13px; font-weight: 600; color: var(--text-main); cursor: pointer;
+  }
+  .players-btn:hover { background: rgba(255,255,255,0.5); }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab {
+    flex: 1; text-align: center; padding: 10px; border-radius: 14px; cursor: pointer;
+    border: 1px solid var(--glass-border); background: var(--glass-bg); font-weight: 600; font-size: 14px;
+    transition: all 0.15s ease;
+  }
+  .tab.active { background: rgba(255,255,255,0.55); border-color: rgba(255,255,255,0.7); }
+
+  .player-chip {
+    flex: 1; padding: 12px 14px; border-radius: 14px; backdrop-filter: blur(10px);
+  }
+  .player-chip.p1 { background: rgba(133,183,235,0.22); border: 1px solid rgba(133,183,235,0.4); }
+  .player-chip.p2 { background: rgba(237,147,177,0.22); border: 1px solid rgba(237,147,177,0.4); }
+  .player-chip .label { font-size: 11px; margin: 0 0 2px; opacity: 0.85; }
+  .player-chip.p1 .label, .player-chip.p1 .name { color: var(--blue-800); }
+  .player-chip.p2 .label, .player-chip.p2 .name { color: var(--pink-800); }
+  .player-chip .name { font-size: 14px; font-weight: 700; margin: 0; }
+  .players-row { display: flex; gap: 10px; margin-bottom: 22px; }
+
+  .palier { padding: 18px 18px 14px; margin-bottom: 16px; }
+  .palier-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  .palier-title { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 17px; margin: 0; }
+  .palier-count { font-size: 12px; color: var(--text-soft); white-space: nowrap; }
+  .palier-zones { font-size: 12.5px; color: var(--text-soft); margin: 2px 0 14px; line-height: 1.5; }
+  .progress-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.4); overflow: hidden; margin-bottom: 14px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #85B7EB, #ED93B1); border-radius: 999px; transition: width 0.3s ease; }
+
+  .task-list { display: flex; flex-direction: column; gap: 7px; }
+  .task {
+    display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-radius: 14px;
+    background: rgba(255,255,255,0.3); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.4);
+  }
+  .task.highlight { background: rgba(255,255,255,0.48); border: 1.5px solid rgba(255,255,255,0.65); }
+  .task-name { flex: 1; font-size: 13.5px; }
+  .task-name a { color: var(--text-main); text-decoration: none; }
+  .task-name a:hover { text-decoration: underline; }
+  .badge { font-size: 10px; padding: 2px 7px; border-radius: 999px; margin-left: 6px; font-weight: 700; vertical-align: middle; }
+  .badge.tdm { background: rgba(133,183,235,0.4); color: var(--blue-900); }
+  .badge.tornade { background: rgba(237,147,177,0.4); color: var(--pink-900); }
+
+  .check-btn {
+    width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; font-size: 15px; font-weight: 700; transition: all 0.15s ease; border: 1px solid;
+    background: rgba(255,255,255,0.15);
+  }
+  .check-btn.p1 { border-color: rgba(133,183,235,0.6); color: transparent; }
+  .check-btn.p1.done { background: rgba(133,183,235,0.65); color: var(--blue-900); }
+  .check-btn.p2 { border-color: rgba(237,147,177,0.6); color: transparent; }
+  .check-btn.p2.done { background: rgba(237,147,177,0.65); color: var(--pink-900); }
+  .check-btn:hover { filter: brightness(1.05); transform: scale(1.05); }
+
+  .legend { font-size: 11.5px; color: var(--text-soft); margin-top: 4px; }
+
+  /* Classes tab */
+  .class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .class-card { padding: 14px 16px; }
+  .class-card .cname { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 15px; margin: 0 0 2px; }
+  .class-card .crole { font-size: 11.5px; color: var(--pink-800); font-weight: 700; margin: 0 0 6px; }
+  .class-card .cdesc { font-size: 12.5px; color: var(--text-soft); margin: 0; line-height: 1.5; }
+
+  .duo-card { padding: 14px 16px; margin-bottom: 10px; }
+  .duo-title { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+  .duo-classes { display: flex; gap: 8px; margin-bottom: 6px; }
+  .duo-pill { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,0.5); }
+  .duo-why { font-size: 12.5px; color: var(--text-soft); line-height: 1.5; margin: 0; }
+
+  .section-title { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 18px; margin: 24px 0 10px; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(30,30,40,0.25); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px;
+  }
+  .modal { width: 100%; max-width: 360px; padding: 22px; background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); }
+  .modal h3 { font-family: 'Quicksand', sans-serif; margin: 0 0 14px; font-size: 17px; }
+  .modal label { font-size: 12.5px; color: var(--text-soft); display: block; margin: 10px 0 4px; }
+  .modal input {
+    width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.7); font-size: 14px; font-family: inherit;
+  }
+  .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+  .modal-actions button {
+    flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 700; font-size: 13.5px; cursor: pointer; font-family: inherit;
+  }
+  .btn-save { background: linear-gradient(90deg, #85B7EB, #ED93B1); color: white; }
+  .btn-cancel { background: rgba(0,0,0,0.06); color: var(--text-main); }
+
+  .loading { text-align: center; padding: 40px; color: var(--text-soft); font-size: 14px; }
+  .sync-note { font-size: 11px; color: var(--text-soft); text-align: center; margin-top: 30px; opacity: 0.7; }
+</style>
+</head>
+<body>
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+<div class="wrap">
+  <h1>Roadmap Dofus</h1>
+  <p class="subtitle">Session en duo — pas de rush, on avance à notre rythme</p>
+
+  <div class="topbar">
+    <button class="players-btn" id="openSettings">⚙ Noms des joueurs</button>
+    <span id="syncStatus" style="font-size:11px;color:var(--text-soft);"></span>
+  </div>
+
+  <div class="players-row">
+    <div class="player-chip p1">
+      <p class="label">Joueur 1</p>
+      <p class="name" id="p1NameDisplay">Joueur 1</p>
+    </div>
+    <div class="player-chip p2">
+      <p class="label">Joueur 2</p>
+      <p class="name" id="p2NameDisplay">Joueur 2</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="roadmap">Roadmap</div>
+    <div class="tab" data-tab="classes">Classes</div>
+  </div>
+
+  <div id="roadmapTab"><div class="loading">Chargement…</div></div>
+  <div id="classesTab" style="display:none;"></div>
+
+  <p class="sync-note">Progression synchronisée pour vous deux via Supabase.</p>
+</div>
+
+<div class="modal-overlay" id="settingsModal" style="display:none;">
+  <div class="glass modal">
+    <h3>Noms des joueurs</h3>
+    <label for="p1Input">Joueur 1 (bleu)</label>
+    <input type="text" id="p1Input" placeholder="Ex. Sylvain">
+    <label for="p2Input">Joueur 2 (rose)</label>
+    <input type="text" id="p2Input" placeholder="Ex. prénom ou pseudo">
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancelSettings">Annuler</button>
+      <button class="btn-save" id="saveSettings">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROADMAP = [{"id": "p1", "title": "Pr\u00e9ambule", "zones": ["Pr\u00e9ambule", "Appr\u00e9hender le jeu", "Choisir son serveur", "Choix de la classe"], "tasks": []}, {"id": "p2", "title": "Niveau 1 \u00e0 20", "zones": ["Incarnam : Premiers m\u00e9canismes et premiers niveaux"], "tasks": [{"id": "t1", "name": "En Route pour l'Aventure", "link": "https://www.dofuspourlesnoobs.com/en-route-pour-laventure.html", "tdm": true, "tornade": true}, {"id": "t2", "name": "Pouss\u00e9 par le vent", "link": "https://www.dofuspourlesnoobs.com/pousseacute-par-le-vent.html", "tdm": false, "tornade": false}, {"id": "t3", "name": "Service dans la milice", "link": "https://www.dofuspourlesnoobs.com/service-dans-la-milice.html", "tdm": false, "tornade": false}, {"id": "t4", "name": "C'est le m\u00e9tier qui rentre", "link": "https://www.dofuspourlesnoobs.com/cest-le-meacutetier-qui-rentre.html", "tdm": false, "tornade": false}, {"id": "t5", "name": "Ramdam sur Incarnam", "link": "https://www.dofuspourlesnoobs.com/ramdam-sur-incarnam.html", "tdm": false, "tornade": false}]}, {"id": "p3", "title": "Niveau 20 \u00e0 40", "zones": ["Astrub : Introduction au background et avanc\u00e9e du personnage", "A travers le Krosmoz", "Faire le K\u00e9k\u00e9"], "tasks": [{"id": "t6", "name": "Un Citoyen Mod\u00e8le", "link": "https://www.dofuspourlesnoobs.com/un-citoyen-modele.html", "tdm": true, "tornade": true}, {"id": "t7", "name": "L'occasion fait le larron", "link": "https://www.dofuspourlesnoobs.com/l-occasion-fait-le-larron.html", "tdm": false, "tornade": false}, {"id": "t8", "name": "La grande biblioqu\u00e8te", "link": "https://www.dofuspourlesnoobs.com/la-grande-biblioquete.html", "tdm": false, "tornade": false}, {"id": "t9", "name": "Mercenaire d'acier", "link": "https://www.dofuspourlesnoobs.com/mercenaire-d-acier.html", "tdm": false, "tornade": false}, {"id": "t10", "name": "Pas le temps de ch\u00f4mer", "link": "https://www.dofuspourlesnoobs.com/pas-le-temps-de-chomer.html", "tdm": false, "tornade": false}, {"id": "t11", "name": "L'Habitat urbain", "link": "https://www.dofuspourlesnoobs.com/l-habitat-urbain.html", "tdm": true, "tornade": true}, {"id": "t12", "name": "Escapades et Embuscades", "link": "https://www.dofuspourlesnoobs.com/escapades-et-embuscades.html", "tdm": false, "tornade": false}, {"id": "t13", "name": "Grange du Tournesol Affam\u00e9 & Cour du Bouftou Royal (Tour du Monde)", "link": "https://www.dofuspourlesnoobs.com/le-tour-du-monde-en-27-donjons.html", "tdm": true, "tornade": false}, {"id": "t14", "name": "Ch\u00e2teau Ensabl\u00e9 & Cache du Kankreblath (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/premiegravere-eacutedition-de-donjons.html", "tdm": false, "tornade": true}, {"id": "t15", "name": "L'osmose", "link": "https://www.dofuspourlesnoobs.com/losmose.html", "tdm": true, "tornade": true}, {"id": "t16", "name": "Faire le k\u00e9k\u00e9", "link": "https://www.dofuspourlesnoobs.com/faire-le-keke.html", "tdm": true, "tornade": true}]}, {"id": "p4", "title": "Niveau 50", "zones": ["Amakna : Premi\u00e8res qu\u00eates", "Justiciers : Lancer la chasse", "Sufokia : Un bon air de la mer d'Asse", "Qu\u00eate d'Alignement num\u00e9ro 4", "Rush Donjons Tour du monde & Tornade des donjons", "Pandala : Introduction aux Dofus", "Sidimote : Les landes mortes", "Le Campement des Bworks et Gobelins", "Caniablanca : Exploration des plaines", "Qu\u00eate d'Alignement 5 - 19", "Tour du Monde / Tornade des Donjons", "Archipel de Valonia - Albuera", "Sufokia : Acc\u00e9der \u00e0 l'\u00eele d'Otoma\u00ef", "Dofus Ocre : L'\u00c9ternelle Moisson", "Dofus Ocre : Ocre d'Ambre", "Ocre d'Ambre"], "tasks": [{"id": "t17", "name": "Le vallon du ch\u00e2teau", "link": "https://www.dofuspourlesnoobs.com/le-vallon-du-chacircteau.html", "tdm": true, "tornade": true}, {"id": "t18", "name": "La bonne attitude", "link": "https://www.dofuspourlesnoobs.com/la-bonne-attitude.html", "tdm": false, "tornade": false}, {"id": "t19", "name": "Destination Aventure", "link": "https://www.dofuspourlesnoobs.com/destinations-aventure.html", "tdm": false, "tornade": false}, {"id": "t20", "name": "\u00c7a va faire du vilain", "link": "https://www.dofuspourlesnoobs.com/ccedila-va-faire-du-vilain.html", "tdm": true, "tornade": true}, {"id": "t21", "name": "Bizutage", "link": "https://www.dofuspourlesnoobs.com/bizutage.html", "tdm": true, "tornade": true}, {"id": "t22", "name": "Formation pratique", "link": "https://www.dofuspourlesnoobs.com/formation-pratique.html", "tdm": false, "tornade": false}, {"id": "t23", "name": "Nouvelle fourn\u00e9e de justiciers", "link": "https://www.dofuspourlesnoobs.com/nouvelle-fourneacutee-de-justiciers.html", "tdm": false, "tornade": false}, {"id": "t24", "name": "Le bon air de la mer d'Asse", "link": "https://www.dofuspourlesnoobs.com/le-bon-air-de-la-mer-dasse.html", "tdm": true, "tornade": true}, {"id": "t25", "name": "Sufokons ensemble", "link": "https://www.dofuspourlesnoobs.com/sufokons-ensemble.html", "tdm": false, "tornade": false}, {"id": "t26", "name": "La grande kradoc", "link": "https://www.dofuspourlesnoobs.com/la-grande-kradoc.html", "tdm": false, "tornade": false}, {"id": "t27", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": false, "tornade": false}, {"id": "t28", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": true, "tornade": true}, {"id": "t29", "name": "Maison Fant\u00f4me (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/premiegravere-eacutedition-de-donjons.html", "tdm": true, "tornade": true}, {"id": "t30", "name": "Donjon des Squelettes, Donjon des Tofu et Donjon des Scarafeuilles (Tour du Monde)", "link": "https://www.dofuspourlesnoobs.com/le-tour-du-monde-en-27-donjons.html", "tdm": true, "tornade": false}, {"id": "t31", "name": "Mais o\u00f9 sont les Dofus ?", "link": "https://www.dofuspourlesnoobs.com/mais-ougrave-sont-les-dofus.html", "tdm": false, "tornade": false}, {"id": "t32", "name": "Les landes mortes", "link": "https://www.dofuspourlesnoobs.com/les-landes-mortes.html", "tdm": false, "tornade": false}, {"id": "t33", "name": "Ka\u00efra", "link": "https://www.dofuspourlesnoobs.com/kaiumlra.html", "tdm": true, "tornade": true}, {"id": "t34", "name": "Le Th\u00e9atre des gobelins", "link": "https://www.dofuspourlesnoobs.com/le-theacuteacirctre-des-gobelins.html", "tdm": false, "tornade": false}, {"id": "t35", "name": "Akad\u00e9mie des Gobs (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/premiegravere-eacutedition-de-donjons.html", "tdm": false, "tornade": true}, {"id": "t36", "name": "Caniablanca", "link": "https://www.dofuspourlesnoobs.com/caniablanca.html", "tdm": false, "tornade": false}, {"id": "t37", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": true, "tornade": true}, {"id": "t38", "name": "Donjon des Forgerons et Donjon des Bworks (Tour du Monde)", "link": "https://www.dofuspourlesnoobs.com/les-sbires-du-maitre.html", "tdm": true, "tornade": false}, {"id": "t39", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": true, "tornade": true}, {"id": "t40", "name": "Donjon des Larves (Tour du Monde)", "link": "https://www.dofuspourlesnoobs.com/les-sbires-du-maitre.html", "tdm": true, "tornade": false}, {"id": "t41", "name": "Nid du Kwakwa (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/premiegravere-eacutedition-de-donjons.html", "tdm": false, "tornade": true}, {"id": "t42", "name": "L'enfant regardait tomber la neige", "link": "https://www.dofuspourlesnoobs.com/l-enfant-regardait-tomber-la-neige.html", "tdm": true, "tornade": false}, {"id": "t43", "name": "Refuge Sylvestre (Tour du Monde)", "link": "https://www.dofuspourlesnoobs.com/les-sbires-du-maitre.html", "tdm": true, "tornade": false}, {"id": "t44", "name": "Le bon air de la mer d'Asse", "link": "https://www.dofuspourlesnoobs.com/le-bon-air-de-la-mer-dasse.html", "tdm": true, "tornade": true}, {"id": "t45", "name": "La grande kradoc", "link": "https://www.dofuspourlesnoobs.com/la-grande-kradoc.html", "tdm": false, "tornade": false}, {"id": "t46", "name": "Metamob : G\u00e9rez votre Dofus Ocre", "link": "https://metamob.fr/", "tdm": true, "tornade": true}, {"id": "t47", "name": "La fin de l'\u00e9ternit\u00e9", "link": "https://www.dofuspourlesnoobs.com/leacuteternelle-moisson.html", "tdm": false, "tornade": false}, {"id": "t48", "name": "Ocre d'Ambre", "link": "https://www.dofuspourlesnoobs.com/ocre-d-ambre.html", "tdm": true, "tornade": true}, {"id": "t49", "name": "Ocre d'Ambre", "link": "https://www.dofuspourlesnoobs.com/ocre-d-ambre.html", "tdm": true, "tornade": true}, {"id": "t50", "name": "Grotte Hesque (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/premiegravere-eacutedition-de-donjons.html", "tdm": false, "tornade": true}]}, {"id": "p5", "title": "Niveau 60", "zones": ["Qu\u00eate d'Alignement 19 - 20 + Ordre 1", "Ile de Moon : Territoire Kanniboule", "Dofus Cawotte : Wa Wabbit"], "tasks": [{"id": "t51", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": false, "tornade": false}, {"id": "t52", "name": "Clos des Blops (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-avanceacutes.html", "tdm": true, "tornade": true}, {"id": "t53", "name": "Koko Boy", "link": "https://www.dofuspourlesnoobs.com/koko-boy.html", "tdm": true, "tornade": true}, {"id": "t54", "name": "Monnaie de singe", "link": "https://www.dofuspourlesnoobs.com/monnaie-de-singe.html", "tdm": false, "tornade": false}, {"id": "t55", "name": "Village Kanniboule (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-avanceacutes.html", "tdm": false, "tornade": true}, {"id": "t56", "name": "Rus\u00e9 comme une Lenalde", "link": "https://www.dofuspourlesnoobs.com/ruseacute-comme-une-lenalde.html", "tdm": true, "tornade": true}, {"id": "t57", "name": "Lancer de Wabbit", "link": "https://www.dofuspourlesnoobs.com/lancer-de-wabbit.html", "tdm": false, "tornade": false}, {"id": "t58", "name": "Un Wa de Pacotille", "link": "https://www.dofuspourlesnoobs.com/un-wa-de-pacotille.html", "tdm": false, "tornade": false}, {"id": "t59", "name": "Wabbit en feu", "link": "https://www.dofuspourlesnoobs.com/wabbit-en-feu.html", "tdm": false, "tornade": false}, {"id": "t60", "name": "Ch\u00e2teau du Wa Wabbit (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-avanceacutes.html", "tdm": false, "tornade": true}]}, {"id": "p6", "title": "Niveau 70", "zones": ["Tour du Monde / Tornade des Donjons", "Sufokia : Le bon air de la mer d'Asse", "Rush Donjons Tour du monde/Tornade des donjons", "Otoma\u00ef : Les Pirates", "Qu\u00eate d'Alignement 21 \u00e0 29"], "tasks": [{"id": "t61", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": true, "tornade": true}, {"id": "t62", "name": "Gelaxi\u00e8me Dimension (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-avanceacutes.html", "tdm": false, "tornade": true}, {"id": "t63", "name": "Le bon air de la mer d'Asse", "link": "https://www.dofuspourlesnoobs.com/le-bon-air-de-la-mer-dasse.html", "tdm": true, "tornade": true}, {"id": "t64", "name": "Sufokons ensemble", "link": "https://www.dofuspourlesnoobs.com/sufokons-ensemble.html", "tdm": false, "tornade": false}, {"id": "t65", "name": "\u00c9preuve de Draegnerys (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-avanceacutes.html", "tdm": true, "tornade": true}, {"id": "t66", "name": "Sacr\u00e9e Tourbi\u00e8re", "link": "https://www.dofuspourlesnoobs.com/sacreacutee-tourbiegravere.html", "tdm": true, "tornade": true}, {"id": "t67", "name": "Cale de l'Arche d'Otoma\u00ef (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-avanceacutes.html", "tdm": false, "tornade": true}, {"id": "t68", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": true, "tornade": true}, {"id": "t69", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": false, "tornade": false}, {"id": "t70", "name": "Pitons rocheux des Craqueleurs (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/les-sbires-du-maitre.html", "tdm": true, "tornade": false}]}, {"id": "p7", "title": "Niveau 80", "zones": ["Sidimote : Les landes mortes", "Saharach : la Dune des Ossements", "Dofus Cawotte : Wa Wobot", "Qu\u00eate d'Allister : F\u00e9lon ou loyal", "Montagne des Koalaks : Tout \u00e7a pour du kaliptus"], "tasks": [{"id": "t71", "name": "Les landes mortes", "link": "https://www.dofuspourlesnoobs.com/les-landes-mortes.html", "tdm": true, "tornade": true}, {"id": "t72", "name": "Laboratoire de Brumen Tinctorias (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-trois-point-cinq.html", "tdm": false, "tornade": true}, {"id": "t73", "name": "Au clair de la dune", "link": "https://www.dofuspourlesnoobs.com/au-clair-de-la-dune.html", "tdm": true, "tornade": true}, {"id": "t74", "name": "Le plein d'\u00c9pice", "link": "https://www.dofuspourlesnoobs.com/le-plein-depice.html", "tdm": false, "tornade": false}, {"id": "t75", "name": "Cimeti\u00e8re des Mastodontes (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-trois-point-cinq.html", "tdm": false, "tornade": true}, {"id": "t76", "name": "Un Wa de Pacotille", "link": "https://www.dofuspourlesnoobs.com/un-wa-de-pacotille.html", "tdm": true, "tornade": true}, {"id": "t77", "name": "Poil de Cawotte", "link": "https://www.dofuspourlesnoobs.com/poil-de-cawotte.html", "tdm": false, "tornade": false}, {"id": "t78", "name": "Partie prise", "link": "https://www.dofuspourlesnoobs.com/partie-prise.html", "tdm": false, "tornade": false}, {"id": "t79", "name": "Terrier du Wa Wabbit (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-trois-point-cinq.html", "tdm": false, "tornade": true}, {"id": "t80", "name": "\u00catre plus royaliste que le roi", "link": "https://www.dofuspourlesnoobs.com/ecirctre-plus-royaliste-que-le-roi.html", "tdm": true, "tornade": true}, {"id": "t81", "name": "Convoyeur de fond en comble", "link": "https://www.dofuspourlesnoobs.com/convoyeur-de-fond-en-comble.html", "tdm": true, "tornade": true}]}, {"id": "p8", "title": "Niveau 90", "zones": ["Ile de Moon : Les Pirates du Chouque", "Route des Roulottes : Hurlements de rire", "Qu\u00eate d'Alignement 29 \u00e0 33", "Ocre d'Ambre : Comme un Corbac sur sa branche", "Royaume d'Amakna : L'arbre qui cache la for\u00eat", "Caniablanca : Exploration des plaines", "Introduction aux dimensions divines"], "tasks": [{"id": "t82", "name": "Koko Boy", "link": "https://www.dofuspourlesnoobs.com/koko-boy.html", "tdm": true, "tornade": true}, {"id": "t83", "name": "Monnaie de singe", "link": "https://www.dofuspourlesnoobs.com/monnaie-de-singe.html", "tdm": false, "tornade": false}, {"id": "t84", "name": "Bateau du Chouque (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-trois-point-cinq.html", "tdm": false, "tornade": true}, {"id": "t85", "name": "Hurlements de rire", "link": "https://www.dofuspourlesnoobs.com/hurlements-de-rire.html", "tdm": true, "tornade": true}, {"id": "t86", "name": "Chapiteau des Magik Riktus (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/donjons-trois-point-cinq.html", "tdm": false, "tornade": true}, {"id": "t87", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": true, "tornade": true}, {"id": "t88", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": false, "tornade": false}, {"id": "t89", "name": "Ocre d'Ambre", "link": "https://www.dofuspourlesnoobs.com/ocre-d-ambre.html", "tdm": true, "tornade": true}, {"id": "t90", "name": "L'arbre qui cache la for\u00eat", "link": "https://www.dofuspourlesnoobs.com/l-arbre-qui-cache-la-foret.html", "tdm": true, "tornade": true}, {"id": "t91", "name": "Antre de la Reine Ny\u00e9e (Tornade des donjons)", "link": "https://www.dofuspourlesnoobs.com/le-siegravege-des-donjons.html", "tdm": false, "tornade": true}, {"id": "t92", "name": "Domaine Ancestral (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/un-juge-hysterique.html", "tdm": true, "tornade": false}, {"id": "t93", "name": "Caniablanca", "link": "https://www.dofuspourlesnoobs.com/caniablanca.html", "tdm": true, "tornade": true}, {"id": "t94", "name": "D'un monde \u00e0 l'autre", "link": "https://www.dofuspourlesnoobs.com/dun-monde-agrave-lautre.html", "tdm": true, "tornade": true}, {"id": "t95", "name": "Aux portes de la nuit", "link": "https://www.dofuspourlesnoobs.com/aux-portes-de-la-nuit.html", "tdm": false, "tornade": false}, {"id": "t96", "name": "G\u00e9n\u00e9rations futures", "link": "https://www.dofuspourlesnoobs.com/geacuteneacuterations-futures.html", "tdm": false, "tornade": false}, {"id": "t97", "name": "Errances f\u00e9lines", "link": "https://www.dofuspourlesnoobs.com/errances-feacutelines.html", "tdm": false, "tornade": false}]}, {"id": "p9", "title": "Niveau 100", "zones": ["Bleu Turquoise 1 : Troisi\u00e8me Dofus primordial", "Qu\u00eate d'Alignement 33 \u00e0 40 + Ordre 2", "Rush Donjons Tour du monde/Tornade des donjons", "Port de Madrestam - L\u00e9chage de bottes", "Vert Emeraude : Premier Dofus Primordial", "Pandala : \u00c0 la crois\u00e9e des mondes", "Captain Amakna : Le Manigancien", "Ile de Moon : Jungle Interdite"], "tasks": [{"id": "t98", "name": "Bleu Turquoise", "link": "https://www.dofuspourlesnoobs.com/bleu-turquoise.html", "tdm": true, "tornade": true}, {"id": "t99", "name": "Antre du Dragon Cochon (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/un-juge-hysterique.html", "tdm": true, "tornade": false}, {"id": "t100", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": true, "tornade": true}, {"id": "t101", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": false, "tornade": false}, {"id": "t102", "name": "Caverne du Koulosse (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/un-juge-hysterique.html", "tdm": true, "tornade": true}, {"id": "t103", "name": "Repaire du Kharnozor (Tornade des donjons)", "link": "https://www.dofuspourlesnoobs.com/le-siegravege-des-donjons.html", "tdm": false, "tornade": true}, {"id": "t104", "name": "L\u00e9chage de bottes", "link": "https://www.dofuspourlesnoobs.com/leacutechage-de-bottes.html", "tdm": true, "tornade": true}, {"id": "t105", "name": "Tani\u00e8re du Meulou (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/un-juge-hysterique.html", "tdm": true, "tornade": true}, {"id": "t106", "name": "Vert Emeraude", "link": "https://www.dofuspourlesnoobs.com/vert-eacutemeraude.html", "tdm": false, "tornade": false}, {"id": "t107", "name": "Les grands esprits se rencontrent", "link": "https://www.dofuspourlesnoobs.com/les-grands-esprits-se-rencontrent.html", "tdm": false, "tornade": false}, {"id": "t108", "name": "\u00c7a va faire du vilain", "link": "https://www.dofuspourlesnoobs.com/ccedila-va-faire-du-vilain.html", "tdm": true, "tornade": true}, {"id": "t109", "name": "Th\u00e9\u00e2tre de Dramak (Tornade des donjons)", "link": "https://www.dofuspourlesnoobs.com/le-siegravege-des-donjons.html", "tdm": false, "tornade": true}, {"id": "t110", "name": "Koko boy", "link": "https://www.dofuspourlesnoobs.com/koko-boy.html", "tdm": true, "tornade": true}, {"id": "t111", "name": "Monnaie de singe", "link": "https://www.dofuspourlesnoobs.com/monnaie-de-singe.html", "tdm": false, "tornade": false}, {"id": "t112", "name": "Arbre de Moon (Tornade des donjons)", "link": "https://www.dofuspourlesnoobs.com/le-siegravege-des-donjons.html", "tdm": false, "tornade": true}]}, {"id": "p10", "title": "Niveau 110", "zones": ["Enutrosor Chapitre 1 : M\u00eame pas Malle", "Dofus des Veilleurs : Odyss\u00e9e en Trois dimensions", "Qu\u00eate d'Alignement 41", "Bonta & Br\u00e2kmar : Fr\u00e8res ennemis", "Cania : \u00c7a en valait la plaine", "Ecaflipus Chapitre 1 : Pounicheur", "Ocre d'Ambre : Rester plant\u00e9 l\u00e0", "Pandala : De quel bois je me chauffe (Damadrya)", "Pourpre Profond 1 : Second Dofus Primordial"], "tasks": [{"id": "t113", "name": "M\u00eame pas Malle", "link": "https://www.dofuspourlesnoobs.com/mecircme-pas-malle.html", "tdm": true, "tornade": true}, {"id": "t114", "name": "M\u00eame pas malle", "link": "https://www.dofuspourlesnoobs.com/mecircme-pas-malle.html", "tdm": true, "tornade": true}, {"id": "t115", "name": "Par-del\u00e0 les apparences", "link": "https://www.dofuspourlesnoobs.com/par-delagrave-les-apparences.html", "tdm": false, "tornade": false}, {"id": "t116", "name": "Odyss\u00e9e en trois dimensions", "link": "https://www.dofuspourlesnoobs.com/dofus-des-veilleurs.html", "tdm": false, "tornade": false}, {"id": "t117", "name": "Eliocalypse : R\u00e9sonance", "link": null, "tdm": true, "tornade": true}, {"id": "t118", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": true, "tornade": true}, {"id": "t119", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": false, "tornade": false}, {"id": "t120", "name": "Fr\u00e8res Ennemis", "link": "https://www.dofuspourlesnoobs.com/freres-ennemis.html", "tdm": true, "tornade": true}, {"id": "t121", "name": "Garde-Manger du Rat Blanc & Sousourici\u00e8re du Rat Noir (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/un-juge-hysterique.html", "tdm": true, "tornade": false}, {"id": "t122", "name": "\u00c7a en valait la plaine", "link": "https://www.dofuspourlesnoobs.com/ccedila-en-valait-la-plaine.html", "tdm": true, "tornade": true}, {"id": "t123", "name": "Tu peux toujours te gratter", "link": "https://www.dofuspourlesnoobs.com/tu-peux-toujours-te-gratter.html", "tdm": true, "tornade": true}, {"id": "t124", "name": "Ocre d'Ambre", "link": "https://www.dofuspourlesnoobs.com/ocre-d-ambre.html", "tdm": true, "tornade": true}, {"id": "t125", "name": "Les grands esprits se rencontrent", "link": "https://www.dofuspourlesnoobs.com/les-grands-esprits-se-rencontrent.html", "tdm": true, "tornade": true}, {"id": "t126", "name": "Suivre la voie", "link": "https://www.dofuspourlesnoobs.com/suivre-la-voie.html", "tdm": false, "tornade": false}, {"id": "t127", "name": "Nature spirituelle", "link": "https://www.dofuspourlesnoobs.com/nature-spirituelle.html", "tdm": false, "tornade": false}, {"id": "t128", "name": "De quel bois je me chauffe", "link": "https://www.dofuspourlesnoobs.com/de-quel-bois-je-me-chauffe.html", "tdm": false, "tornade": false}, {"id": "t129", "name": "Pourpre profond", "link": "https://www.dofuspourlesnoobs.com/pourpre-profond.html", "tdm": true, "tornade": true}, {"id": "t130", "name": "Biblioth\u00e8que du Ma\u00eetre Corbac (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/des-donjons-encore-des-donjons.html", "tdm": true, "tornade": false}]}, {"id": "p11", "title": "Niveau 120", "zones": ["Frigost : Le Royalmouth", "Qu\u00eate d'Alignement 55", "Pourpre Profond 2 : Second Dofus Primordial", "La Fratrie des Oubli\u00e9s", "Xelorium Chapitre 1 : Fraktale", "Noir d'\u00c9b\u00e8ne"], "tasks": [{"id": "t131", "name": "Fri Carr\u00e9", "link": "https://www.dofuspourlesnoobs.com/fri-carreacute.html", "tdm": true, "tornade": true}, {"id": "t132", "name": "Jouer au Docteur", "link": "https://www.dofuspourlesnoobs.com/jouer-au-docteur.html", "tdm": false, "tornade": false}, {"id": "t133", "name": "La maire d\u00e9nie", "link": "https://www.dofuspourlesnoobs.com/la-maire-deacutenie.html", "tdm": false, "tornade": false}, {"id": "t134", "name": "Les survivants de Frigost", "link": "https://www.dofuspourlesnoobs.com/les-survivants-de-frigost.html", "tdm": false, "tornade": false}, {"id": "t135", "name": "Agriculture ou Alchimie", "link": "https://www.dofuspourlesnoobs.com/agriculture-ou-alchimie.html", "tdm": false, "tornade": false}, {"id": "t136", "name": "Halte au p\u00e9age", "link": "https://www.dofuspourlesnoobs.com/halte-au-peacuteage.html", "tdm": false, "tornade": false}, {"id": "t137", "name": "Serre du Royalmouth (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/des-donjons-encore-des-donjons.html", "tdm": true, "tornade": false}, {"id": "t138", "name": "Probl\u00e8mes et solutions", "link": "https://www.dofuspourlesnoobs.com/problegravemes-et-solutions.html", "tdm": false, "tornade": false}, {"id": "t139", "name": "Objets trouv\u00e9s", "link": "https://www.dofuspourlesnoobs.com/objets-trouveacutes.html", "tdm": false, "tornade": false}, {"id": "t140", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": false, "tornade": false}, {"id": "t141", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": false, "tornade": false}, {"id": "t142", "name": "Pourpre profond", "link": "https://www.dofuspourlesnoobs.com/pourpre-profond.html", "tdm": true, "tornade": true}, {"id": "t143", "name": "Goulet du Rasboul & Antre du Blop Multicolore Royal (Tornade des donjons)", "link": "https://www.dofuspourlesnoobs.com/le-siegravege-des-donjons.html", "tdm": true, "tornade": true}, {"id": "t144", "name": "Centre du Labyrinthe du Minotorror (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/des-donjons-encore-des-donjons.html", "tdm": true, "tornade": false}, {"id": "t145", "name": "La Fratrie des Oubli\u00e9s", "link": "https://www.dofuspourlesnoobs.com/la-fratrie-des-oublies.html", "tdm": true, "tornade": true}, {"id": "t146", "name": "Les temps qui courent", "link": "https://www.dofuspourlesnoobs.com/les-temps-qui-courent.html", "tdm": false, "tornade": false}, {"id": "t147", "name": "Noir d'\u00e9b\u00e8ne", "link": "https://www.dofuspourlesnoobs.com/noir-d-ebene.html", "tdm": true, "tornade": true}, {"id": "t148", "name": "Repaire de Skeunk & Antre de Crocabulia (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/la-voie-du-guerrier.html", "tdm": true, "tornade": false}]}, {"id": "p12", "title": "Niveau 130", "zones": ["Srambad Chapitre 1 : Capitaine Ekarlatte", "Pourpre Profond 3 : Second Dofus Primordial", "Cania : \u00c7a en valait la plaine - Suite et fin", "Saharach : Territoire Cacterre", "Pandala : Des larmes de Pierre (Nagate & Tanukou\u00ef San)"], "tasks": [{"id": "t149", "name": "Sauv\u00e9 par le gong", "link": "https://www.dofuspourlesnoobs.com/sauveacute-par-le-gong.html", "tdm": true, "tornade": true}, {"id": "t150", "name": "Pourpre profond", "link": "https://www.dofuspourlesnoobs.com/pourpre-profond.html", "tdm": true, "tornade": true}, {"id": "t151", "name": "\u00c7a en valait la plaine", "link": "https://www.dofuspourlesnoobs.com/ccedila-en-valait-la-plaine.html", "tdm": true, "tornade": true}, {"id": "t152", "name": "Au clair de la dune", "link": "https://www.dofuspourlesnoobs.com/au-clair-de-la-dune.html", "tdm": true, "tornade": true}, {"id": "t153", "name": "Priv\u00e9 de D\u00e9sert", "link": "https://www.dofuspourlesnoobs.com/prive-de-desert.html", "tdm": false, "tornade": false}, {"id": "t154", "name": "Les grands esprits se rencontrent", "link": "https://www.dofuspourlesnoobs.com/les-grands-esprits-se-rencontrent.html", "tdm": true, "tornade": true}, {"id": "t155", "name": "Des larmes de pierre", "link": "https://www.dofuspourlesnoobs.com/des-larmes-de-pierre.html", "tdm": false, "tornade": false}]}, {"id": "p13", "title": "Niveau 140", "zones": ["Frigost : Les Pins Perdus & Le Lac Gel\u00e9", "Qu\u00eate d'Alignement 60 + Ordre 3", "Bleu Turquoise 2 : Troisi\u00e8me Dofus Primordial", "Royaume d'Amakna : L'art de la langue de bois", "Pandala : Sous des nuages de cendre (Founoroshi & Hanshi et Shihan)"], "tasks": [{"id": "t156", "name": "La maire d\u00e9nie", "link": "https://www.dofuspourlesnoobs.com/la-maire-deacutenie.html", "tdm": true, "tornade": true}, {"id": "t157", "name": "Halte au p\u00e9age", "link": "https://www.dofuspourlesnoobs.com/halte-au-peacuteage.html", "tdm": false, "tornade": false}, {"id": "t158", "name": "Forage \u00e0 tout va", "link": "https://www.dofuspourlesnoobs.com/forage-agrave-tout-va.html", "tdm": false, "tornade": false}, {"id": "t159", "name": "Agriculture ou Alchimie", "link": "https://www.dofuspourlesnoobs.com/agriculture-ou-alchimie.html", "tdm": false, "tornade": false}, {"id": "t160", "name": "Les survivants de Frigost", "link": "https://www.dofuspourlesnoobs.com/les-survivants-de-frigost.html", "tdm": false, "tornade": false}, {"id": "t161", "name": "Les carri\u00e8res de glace", "link": "https://www.dofuspourlesnoobs.com/les-carriegraveres-de-glace.html", "tdm": false, "tornade": false}, {"id": "t162", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": false, "tornade": false}, {"id": "t163", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": true, "tornade": true}, {"id": "t164", "name": "Bleu Turquoise", "link": "https://www.dofuspourlesnoobs.com/bleu-turquoise.html", "tdm": true, "tornade": true}, {"id": "t165", "name": "Fabrique de foux d'artifices (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/la-voie-du-guerrier.html", "tdm": true, "tornade": false}, {"id": "t166", "name": "Laboratoire du Tynril (Tornade des donjons)", "link": "https://www.dofuspourlesnoobs.com/la-tornade-des-donjons.html", "tdm": false, "tornade": true}, {"id": "t167", "name": "L'arbre qui cache la for\u00eat", "link": "https://www.dofuspourlesnoobs.com/l-arbre-qui-cache-la-foret.html", "tdm": true, "tornade": true}, {"id": "t168", "name": "Clairi\u00e8re du Ch\u00eane Mou (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/la-voie-du-guerrier.html", "tdm": true, "tornade": false}, {"id": "t169", "name": "Les grands esprits se rencontrent", "link": "https://www.dofuspourlesnoobs.com/les-grands-esprits-se-rencontrent.html", "tdm": true, "tornade": true}, {"id": "t170", "name": "Sous un nuage de cendre", "link": "https://www.dofuspourlesnoobs.com/sous-des-nuages-de-cendre.html", "tdm": false, "tornade": false}]}, {"id": "p14", "title": "Niveau 150", "zones": ["Frigost : Le berceau d'Alma", "Bleu Turquoise 3 : Troisi\u00e8me Dofus Primordial", "Frigost : Les Larmes d'Ouronigride", "Qu\u00eate d'Alignement 70", "For\u00eat Mal\u00e9fique"], "tasks": [{"id": "t171", "name": "Halte au p\u00e9age", "link": "https://www.dofuspourlesnoobs.com/halte-au-peacuteage.html", "tdm": true, "tornade": true}, {"id": "t172", "name": "Agriculture ou Alchimie", "link": "https://www.dofuspourlesnoobs.com/agriculture-ou-alchimie.html", "tdm": false, "tornade": false}, {"id": "t173", "name": "Les survivants de Frigost", "link": "https://www.dofuspourlesnoobs.com/les-survivants-de-frigost.html", "tdm": false, "tornade": false}, {"id": "t174", "name": "Bleu Turquoise", "link": "https://www.dofuspourlesnoobs.com/bleu-turquoise.html", "tdm": true, "tornade": true}, {"id": "t175", "name": "Halte au p\u00e9age", "link": "https://www.dofuspourlesnoobs.com/halte-au-peacuteage.html", "tdm": true, "tornade": true}, {"id": "t176", "name": "Agriculture ou Alchimie", "link": "https://www.dofuspourlesnoobs.com/agriculture-ou-alchimie.html", "tdm": false, "tornade": false}, {"id": "t177", "name": "Les survivants de Frigost", "link": "https://www.dofuspourlesnoobs.com/les-survivants-de-frigost.html", "tdm": false, "tornade": false}, {"id": "t178", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": true, "tornade": true}, {"id": "t179", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": false, "tornade": false}, {"id": "t180", "name": "Repaire de Sphincter Cell (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/la-tornade-des-donjons.html", "tdm": false, "tornade": true}, {"id": "t181", "name": "Cherche et trouve", "link": "https://www.dofuspourlesnoobs.com/cherche-et-trouve.html", "tdm": true, "tornade": true}, {"id": "t182", "name": "Mortelle randonn\u00e9e", "link": "https://www.dofuspourlesnoobs.com/mortelle-randonnee.html", "tdm": false, "tornade": false}]}, {"id": "p15", "title": "Niveau 160", "zones": ["Otoma\u00ef : l'Arbre Hakam", "Bleu Turquoise 4 : Troisi\u00e8me Dofus Primordial", "Cania : La Voyageuse Imprudente", "Enutrosor Chapitre 2 : Phossile", "Ecaflipus Chapitre 2 : Ush", "Tour du Monde"], "tasks": [{"id": "t183", "name": "Haute Voltige", "link": "https://www.dofuspourlesnoobs.com/haute-voltige.html", "tdm": true, "tornade": true}, {"id": "t184", "name": "Service de d\u00e9pannage", "link": "https://www.dofuspourlesnoobs.com/service-de-deacutepannage.html", "tdm": false, "tornade": false}, {"id": "t185", "name": "Canop\u00e9e du Kimbo (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/la-tornade-des-donjons.html", "tdm": false, "tornade": true}, {"id": "t186", "name": "Bleu Turquoise", "link": "https://www.dofuspourlesnoobs.com/bleu-turquoise.html", "tdm": true, "tornade": true}, {"id": "t187", "name": "La Voyageuse imprudente", "link": "https://www.dofuspourlesnoobs.com/la-voyageuse-imprudente.html", "tdm": true, "tornade": true}, {"id": "t188", "name": "Apr\u00e8s les phorreurs, le r\u00e9confort", "link": "https://www.dofuspourlesnoobs.com/apregraves-les-phorreurs-le-reacuteconfort.html", "tdm": true, "tornade": true}, {"id": "t189", "name": "Angoraphobie", "link": "https://www.dofuspourlesnoobs.com/angoraphobie.html", "tdm": true, "tornade": true}, {"id": "t190", "name": "Clairi\u00e8re du Ch\u00eane Mou (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/la-voie-du-guerrier.html", "tdm": true, "tornade": true}]}, {"id": "p16", "title": "Niveau 170", "zones": ["Saharach : La gorge des vents hurlants & La cit\u00e9 d\u00e9truite", "Xelorium Chapitre 2 : XLII", "Frigost - La Crevasse Perge", "Ocre d'Ambre : Quand les esprits s'\u00e9chauffent", "Pandala : Le Gardien de l'Immacul\u00e9"], "tasks": [{"id": "t191", "name": "Les secrets du Pandawushu", "link": null, "tdm": true, "tornade": true}, {"id": "t192", "name": "Sous le soleil de Saharach", "link": "https://www.dofuspourlesnoobs.com/sous-le-soleil-de-saharach.html", "tdm": true, "tornade": true}, {"id": "t193", "name": "Que cherche la corporation ?", "link": "https://www.dofuspourlesnoobs.com/que-cherche-la-corporation.html", "tdm": false, "tornade": false}, {"id": "t194", "name": "Carpe Diem", "link": "https://www.dofuspourlesnoobs.com/carpe-diem.html", "tdm": true, "tornade": true}, {"id": "t195", "name": "Halte au p\u00e9age", "link": "https://www.dofuspourlesnoobs.com/halte-au-peacuteage.html", "tdm": true, "tornade": true}, {"id": "t196", "name": "Agriculture ou Alchimie", "link": "https://www.dofuspourlesnoobs.com/agriculture-ou-alchimie.html", "tdm": false, "tornade": false}, {"id": "t197", "name": "Les survivants de Frigost", "link": "https://www.dofuspourlesnoobs.com/les-survivants-de-frigost.html", "tdm": false, "tornade": false}, {"id": "t198", "name": "L'\u00e2me de glace", "link": "https://www.dofuspourlesnoobs.com/lacircme-de-glace.html", "tdm": false, "tornade": false}, {"id": "t199", "name": "Slip ou cale\u00e7on", "link": "https://www.dofuspourlesnoobs.com/slip-ou-caleccedilon.html", "tdm": false, "tornade": false}, {"id": "t200", "name": "Ocre d'Ambre", "link": "https://www.dofuspourlesnoobs.com/ocre-d-ambre.html", "tdm": true, "tornade": true}, {"id": "t201", "name": "Le gardien de l'immacul\u00e9", "link": "https://www.dofuspourlesnoobs.com/le-gardien-de-l-immacule.html", "tdm": true, "tornade": true}, {"id": "t202", "name": "\u00c0 tombeaux ouverts", "link": "https://www.dofuspourlesnoobs.com/a-tombeaux-ouverts.html", "tdm": false, "tornade": false}, {"id": "t203", "name": "Les secrets du Pandawushu", "link": "https://www.dofuspourlesnoobs.com/les-secrets-du-pandawushu.html", "tdm": false, "tornade": false}]}, {"id": "p17", "title": "Niveau 180", "zones": ["Dofus Ocre : Ocre d'Ambre", "Srambad Chapitre 1 : Toxoliath", "Royaume d'Amakna : Les derniers d'entre nous", "Qu\u00eate d'Alignement 85 + Ordre 4", "Frigost - La Crevasse Perge", "Bleu Turquoise 5 : Troisi\u00e8me Dofus Primordial", "Dofus Ocre : L'\u00c9ternelle Moisson", "Quatre sur Six : La derni\u00e8re pierre & Les co\u00fbts du sort", "Sidimote : Le double effet Gisgoul", "Sidimote : Les spores, c'est la sant\u00e9"], "tasks": [{"id": "t204", "name": "Ocre d'Ambre", "link": "https://www.dofuspourlesnoobs.com/ocre-d-ambre.html", "tdm": true, "tornade": true}, {"id": "t205", "name": "Crache ton venin", "link": "https://www.dofuspourlesnoobs.com/crache-ton-venin.html", "tdm": true, "tornade": true}, {"id": "t206", "name": "L'arbre qui cache la for\u00eat", "link": "https://www.dofuspourlesnoobs.com/l-arbre-qui-cache-la-foret.html", "tdm": true, "tornade": true}, {"id": "t207", "name": "Alignement Bontarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bontarien.html", "tdm": false, "tornade": false}, {"id": "t208", "name": "Alignement Brakmarien", "link": "https://www.dofuspourlesnoobs.com/alignement-bracirckmarien.html", "tdm": true, "tornade": true}, {"id": "t209", "name": "Halte au p\u00e9age", "link": "https://www.dofuspourlesnoobs.com/halte-au-peacuteage.html", "tdm": true, "tornade": true}, {"id": "t210", "name": "Agriculture ou Alchimie", "link": "https://www.dofuspourlesnoobs.com/agriculture-ou-alchimie.html", "tdm": false, "tornade": false}, {"id": "t211", "name": "Bleu Turquoise", "link": "https://www.dofuspourlesnoobs.com/bleu-turquoise.html", "tdm": true, "tornade": true}, {"id": "t212", "name": "La fin de l'\u00e9ternit\u00e9", "link": "https://www.dofuspourlesnoobs.com/la-fin-de-leacuteterniteacute.html", "tdm": true, "tornade": true}, {"id": "t213", "name": "Quatre sur Six", "link": "https://www.dofuspourlesnoobs.com/quatre-sur-six.html", "tdm": false, "tornade": false}, {"id": "t214", "name": "Clairi\u00e8re du Ch\u00eane Mou (Tour du monde)", "link": "https://www.dofuspourlesnoobs.com/la-voie-du-guerrier.html", "tdm": true, "tornade": true}, {"id": "t215", "name": "Le double effet Gisgoul", "link": "https://www.dofuspourlesnoobs.com/les-spores-c-est-la-sante.html", "tdm": false, "tornade": false}, {"id": "t216", "name": "Les spores, c'est la sant\u00e9", "link": "https://www.dofuspourlesnoobs.com/les-spores-c-est-la-sante.html", "tdm": false, "tornade": false}, {"id": "t217", "name": "Temple du Grand Ougah (Tornade des Donjons)", "link": "https://www.dofuspourlesnoobs.com/la-tornade-des-donjons.html", "tdm": false, "tornade": true}]}, {"id": "p18", "title": "Niveau 190", "zones": [], "tasks": [{"id": "t218", "name": "\u00c7a va faire du vilain", "link": null, "tdm": false, "tornade": true}, {"id": "t219", "name": "Quatre sur Six", "link": null, "tdm": false, "tornade": true}, {"id": "t220", "name": "Agriculture ou Alchimie, Les survivants de Frigost, Halte au p\u00e9age, L'\u00e2me de glace", "link": null, "tdm": false, "tornade": true}, {"id": "t221", "name": "Agriculture ou Alchimie, Les survivants de Frigost, Halte au p\u00e9age, L'\u00e2me de glace", "link": null, "tdm": false, "tornade": true}, {"id": "t222", "name": "La maire d\u00e9nie", "link": null, "tdm": false, "tornade": true}, {"id": "t223", "name": "Colonel Chachabert, Travail d'int\u00e9r\u00eat g\u00e9n\u00e9ral", "link": null, "tdm": false, "tornade": true}, {"id": "t224", "name": "La chasse aux chasseurs", "link": null, "tdm": false, "tornade": true}, {"id": "t225", "name": "Un clan h\u00e9t\u00e9roclite", "link": null, "tdm": false, "tornade": true}]}, {"id": "p19", "title": "Niveau 200", "zones": [], "tasks": [{"id": "t226", "name": "R\u00eaves de dragons", "link": null, "tdm": false, "tornade": true}, {"id": "t227", "name": "L'hiver arrive, L'\u00e2me de glace, Fra\u00eechement pondu, Epilogue hivernal, Noblesse oblige", "link": null, "tdm": false, "tornade": true}, {"id": "t228", "name": "\u00c7a va faire du vilain", "link": null, "tdm": false, "tornade": true}, {"id": "t229", "name": "Test d'\u00e9tanch\u00e9it\u00e9, La tornade des donjons", "link": null, "tdm": false, "tornade": true}, {"id": "t230", "name": "Travail d'int\u00e9r\u00eat g\u00e9n\u00e9ral, Vos d\u00e9sirs sont des ordres, Vos d\u00e9sirs font d\u00e9sordre", "link": null, "tdm": false, "tornade": true}, {"id": "t231", "name": "La tornade des donjons", "link": null, "tdm": false, "tornade": true}, {"id": "t232", "name": "Plouf !, La mer en h\u00e9ritage, La guerre des profondeurs, L'appel de Koutoulou", "link": null, "tdm": false, "tornade": false}, {"id": "t233", "name": "Quatre sur Six", "link": null, "tdm": false, "tornade": false}, {"id": "t234", "name": "On va tout d\u00e9fausser", "link": null, "tdm": false, "tornade": false}, {"id": "t235", "name": "C'est assez", "link": null, "tdm": false, "tornade": false}, {"id": "t236", "name": "Le roi et moi, Raisons de retraite", "link": null, "tdm": false, "tornade": false}, {"id": "t237", "name": "Sous le soleil de Saharach, Que cherche la corporation", "link": null, "tdm": false, "tornade": false}, {"id": "t238", "name": "Vampyre ? Vous avez dit vampyre ?", "link": null, "tdm": false, "tornade": false}, {"id": "t239", "name": "Blanc Ivoire", "link": null, "tdm": false, "tornade": false}, {"id": "t240", "name": "L'arm\u00e9e des morts", "link": null, "tdm": false, "tornade": false}, {"id": "t241", "name": "L\u00e0 bas sous la montagne", "link": null, "tdm": false, "tornade": false}, {"id": "t242", "name": "Le jeu du tr\u00f4ne, Les voleurs de Srambad", "link": null, "tdm": false, "tornade": false}, {"id": "t243", "name": "Noir d'\u00e9b\u00e8ne", "link": null, "tdm": false, "tornade": false}, {"id": "t244", "name": "Plouf !, La mer en h\u00e9ritage, La guerre des profondeurs, L'appel de Koutoulou, Vous ne descendrez pas plus bas, Sufokons ensemble", "link": null, "tdm": false, "tornade": false}, {"id": "t245", "name": "L\u00e0 bas sous la montagne", "link": null, "tdm": false, "tornade": false}, {"id": "t246", "name": "Marche et cr\u00e8ve, Cimeti\u00e8re marin", "link": null, "tdm": false, "tornade": false}, {"id": "t247", "name": "Le puits du fou, Moment d'\u00e9garement", "link": null, "tdm": false, "tornade": false}, {"id": "t248", "name": "Six sur Six", "link": null, "tdm": false, "tornade": false}, {"id": "t249", "name": "Je r\u00eavais d'un autre monde", "link": null, "tdm": false, "tornade": false}, {"id": "t250", "name": "Un r\u00eave en clair-obscur, Deux dragons entrent dans un bar ...", "link": null, "tdm": false, "tornade": false}, {"id": "t251", "name": "Les secrets du Pandawushu", "link": null, "tdm": false, "tornade": false}, {"id": "t252", "name": "Le bouquet final", "link": null, "tdm": false, "tornade": false}, {"id": "t253", "name": "Conseiller en patrimoine", "link": null, "tdm": false, "tornade": false}, {"id": "t254", "name": "Le bouquet final", "link": null, "tdm": false, "tornade": false}, {"id": "t255", "name": "L'avenir du futur", "link": null, "tdm": false, "tornade": false}, {"id": "t256", "name": "Je suis malade, compl\u00e8tement malade", "link": null, "tdm": false, "tornade": false}, {"id": "t257", "name": "La guerre \u00e9ternelle", "link": null, "tdm": false, "tornade": false}, {"id": "t258", "name": "Jugement dernier", "link": null, "tdm": false, "tornade": false}, {"id": "t259", "name": "Prisonniers de la mer", "link": null, "tdm": false, "tornade": false}, {"id": "t260", "name": "L'avenir du futur", "link": null, "tdm": false, "tornade": false}, {"id": "t261", "name": "Apr\u00e8s la Pluie", "link": null, "tdm": false, "tornade": false}, {"id": "t262", "name": "L'avenir du futur", "link": null, "tdm": false, "tornade": false}, {"id": "t263", "name": "Ravag\u00e9s", "link": null, "tdm": false, "tornade": false}, {"id": "t264", "name": "D'autres moeurs", "link": null, "tdm": false, "tornade": false}, {"id": "t265", "name": "Eliocalypse : R\u00e9miniscence", "link": null, "tdm": false, "tornade": false}, {"id": "t266", "name": "D\u00e9mons et Merveilles", "link": null, "tdm": false, "tornade": false}, {"id": "t267", "name": "Eliocalypse : R\u00e9miniscence", "link": null, "tdm": false, "tornade": false}, {"id": "t268", "name": "Le Secret des Dofus : Prologue", "link": null, "tdm": false, "tornade": false}, {"id": "t269", "name": "L'arbre qui cache la for\u00eat", "link": null, "tdm": false, "tornade": false}, {"id": "t270", "name": "Larmes de crocodaille", "link": null, "tdm": false, "tornade": false}, {"id": "t271", "name": "R\u00eaves de dragons", "link": null, "tdm": false, "tornade": false}]}]
+;
+const CLASSDATA = {"classes": [{"name": "Ecaflip", "role": "Polyvalent / chance", "desc": "Joue sur le hasard et les critiques. Gameplay fun et impr\u00e9visible, bon en solo comme en groupe."}, {"name": "Eniripsa", "role": "Soigneur", "desc": "Le soigneur de r\u00e9f\u00e9rence. Toujours utile en groupe, indispensable en donjon difficile."}, {"name": "Iop", "role": "D\u00e9g\u00e2ts m\u00eal\u00e9e", "desc": "Simple \u00e0 prendre en main, d\u00e9g\u00e2ts bruts au corps \u00e0 corps. Excellent choix pour d\u00e9buter."}, {"name": "Cr\u00e2", "role": "D\u00e9g\u00e2ts distance", "desc": "Frappe de loin en restant en s\u00e9curit\u00e9. Tr\u00e8s accessible, parfait pour farmer sans stress."}, {"name": "F\u00e9ca", "role": "Tank / protecteur", "desc": "Pose des boucliers et prot\u00e8ge son \u00e9quipe. Tr\u00e8s polyvalent, appr\u00e9ci\u00e9 en groupe."}, {"name": "Sacrieur", "role": "Tank encaisseur", "desc": "Punit l'adversaire en prenant des d\u00e9g\u00e2ts. Simple \u00e0 comprendre, bon perso pour absorber les coups."}, {"name": "Sadida", "role": "Invocateur", "desc": "Invoque des poup\u00e9es qui combattent et soignent \u00e0 sa place. Excellent en solo."}, {"name": "Osamodas", "role": "Invocateur / soin", "desc": "Combine d\u00e9g\u00e2ts et soins continus via ses invocations. Tr\u00e8s fort et gratifiant \u00e0 jouer."}, {"name": "Enutrof", "role": "Support / kamas", "desc": "Ralentit et affaiblit l'adversaire, excelle dans la prospection et le farm de kamas."}, {"name": "Sram", "role": "D\u00e9g\u00e2ts sournois", "desc": "Pi\u00e8ges et invisibilit\u00e9, d\u00e9g\u00e2ts critiques \u00e9lev\u00e9s. Demande un peu plus de ma\u00eetrise."}, {"name": "X\u00e9lor", "role": "Contr\u00f4le du temps", "desc": "G\u00e8le et manipule les tours de jeu adverses. Gameplay riche mais plus technique."}, {"name": "Pandawa", "role": "Positionnement", "desc": "Pousse et d\u00e9place les ennemis avec un gameplay bas\u00e9 sur l'ivresse. Original et fun."}, {"name": "Roublard", "role": "D\u00e9g\u00e2ts \u00e0 zone", "desc": "Pose des bombes et des murs de glyphes pour infliger des d\u00e9g\u00e2ts de zone."}, {"name": "Zobal", "role": "Polyvalent masqu\u00e9", "desc": "Change de masque pour adapter son style de jeu selon la situation."}, {"name": "Steamer", "role": "D\u00e9g\u00e2ts \u00e0 distance", "desc": "Tr\u00e8s efficace en d\u00e9but de jeu, notamment gr\u00e2ce \u00e0 des sorts qui poussent les ennemis."}, {"name": "Eliotrope", "role": "Mobilit\u00e9 / portails", "desc": "Se t\u00e9l\u00e9porte via des portails pour se repositionner et frapper. Gameplay original."}, {"name": "Huppermage", "role": "Polyvalent \u00e9l\u00e9mentaire", "desc": "G\u00e8re d\u00e9g\u00e2ts, positionnement et zones dans les 4 \u00e9l\u00e9ments. Accessible mais riche \u00e0 ma\u00eetriser."}, {"name": "Ouginak", "role": "D\u00e9g\u00e2ts m\u00eal\u00e9e / poursuite", "desc": "Traque et ach\u00e8ve les ennemis affaiblis. Bon corps \u00e0 corps avec de la mobilit\u00e9."}, {"name": "Forgelance", "role": "D\u00e9g\u00e2ts \u00e0 distance / zone", "desc": "Classe plus r\u00e9cente ax\u00e9e sur les tirs \u00e0 distance et le contr\u00f4le de zone via des m\u00e9canismes de forge."}], "duos": [{"title": "Tank + soin", "classes": ["F\u00e9ca", "Eniripsa"], "why": "Un prot\u00e8ge, l'autre soigne : duo increvable, tr\u00e8s confortable pour d\u00e9couvrir les donjons sans stress."}, {"title": "M\u00eal\u00e9e simple + distance simple", "classes": ["Iop", "Cr\u00e2"], "why": "Les deux classes les plus accessibles du jeu. Id\u00e9al quand une personne d\u00e9couvre totalement le genre."}, {"title": "Encaisseur + invocateur", "classes": ["Sacrieur", "Sadida"], "why": "Le Sacrieur prend les coups pendant que les poup\u00e9es du Sadida nettoient le terrain."}, {"title": "Soin double-tranchant", "classes": ["Osamodas", "Eniripsa"], "why": "Beaucoup de soin et de r\u00e9silience \u00e0 deux, tr\u00e8s rassurant pour une d\u00e9couverte tranquille."}, {"title": "Contr\u00f4le + d\u00e9g\u00e2ts", "classes": ["X\u00e9lor", "Iop"], "why": "Le X\u00e9lor ralentit et g\u00e8le pendant que l'Iop finit le travail en m\u00eal\u00e9e."}]}
+;
+
+// ---- Supabase config ----
+// Remplacer ces deux valeurs par celles de ton projet Supabase (Project Settings > API)
+const SUPABASE_URL = "https://ijxjrjgxciodlimrcxff.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_0HFDrE0kXs03ngxLy_vbJg_LkjcPgSS";
+let supabase = null;
+if (SUPABASE_URL !== "YOUR_SUPABASE_URL") {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+let state = {
+  players: { p1: "Joueur 1", p2: "Joueur 2" },
+  progress: {} // { taskId: { p1: bool, p2: bool } }
+};
+
+function taskDone(taskId, player) {
+  return !!(state.progress[taskId] && state.progress[taskId][player]);
+}
+
+async function loadState() {
+  if (!supabase) {
+    const local = localStorage.getItem('dofus_roadmap_state');
+    if (local) state = JSON.parse(local);
+    render();
+    return;
+  }
+  document.getElementById('syncStatus').textContent = 'Synchronisation…';
+  const { data: players } = await supabase.from('players').select('*');
+  if (players) {
+    players.forEach(p => { state.players[p.slot] = p.name; });
+  }
+  const { data: progress } = await supabase.from('progress').select('*');
+  if (progress) {
+    progress.forEach(row => {
+      if (!state.progress[row.task_id]) state.progress[row.task_id] = {};
+      state.progress[row.task_id][row.player] = row.done;
+    });
+  }
+  document.getElementById('syncStatus').textContent = '';
+  render();
+}
+
+async function saveProgress(taskId, player, done) {
+  if (!state.progress[taskId]) state.progress[taskId] = {};
+  state.progress[taskId][player] = done;
+  render();
+  if (supabase) {
+    await supabase.from('progress').upsert({ task_id: taskId, player: player, done: done }, { onConflict: 'task_id,player' });
+  } else {
+    localStorage.setItem('dofus_roadmap_state', JSON.stringify(state));
+  }
+}
+
+async function savePlayers(p1, p2) {
+  state.players.p1 = p1 || "Joueur 1";
+  state.players.p2 = p2 || "Joueur 2";
+  render();
+  if (supabase) {
+    await supabase.from('players').upsert([{ slot: 'p1', name: state.players.p1 }, { slot: 'p2', name: state.players.p2 }], { onConflict: 'slot' });
+  } else {
+    localStorage.setItem('dofus_roadmap_state', JSON.stringify(state));
+  }
+}
+
+function renderRoadmap() {
+  const container = document.getElementById('roadmapTab');
+  let html = '';
+  ROADMAP.forEach(palier => {
+    const total = palier.tasks.length * 2;
+    let done = 0;
+    palier.tasks.forEach(t => {
+      if (taskDone(t.id, 'p1')) done++;
+      if (taskDone(t.id, 'p2')) done++;
+    });
+    const pct = total ? Math.round((done / total) * 100) : 0;
+
+    html += `<div class="glass palier">
+      <div class="palier-head">
+        <p class="palier-title">${palier.title}</p>
+        <span class="palier-count">${done}/${total}</span>
+      </div>`;
+    if (palier.zones.length) {
+      html += `<p class="palier-zones">${palier.zones.join(' → ')}</p>`;
+    }
+    if (total) {
+      html += `<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+    }
+    html += `<div class="task-list">`;
+    palier.tasks.forEach(t => {
+      const isHighlight = t.tdm || t.tornade;
+      const p1done = taskDone(t.id, 'p1');
+      const p2done = taskDone(t.id, 'p2');
+      const nameHtml = t.link ? `<a href="${t.link}" target="_blank" rel="noopener">${t.name}</a>` : t.name;
+      let badges = '';
+      if (t.tdm) badges += `<span class="badge tdm">TDM</span>`;
+      if (t.tornade) badges += `<span class="badge tornade">Tornade</span>`;
+      html += `<div class="task ${isHighlight ? 'highlight' : ''}">
+        <div class="task-name">${nameHtml}${badges}</div>
+        <div class="check-btn p1 ${p1done ? 'done' : ''}" data-task="${t.id}" data-player="p1" title="${state.players.p1}">✓</div>
+        <div class="check-btn p2 ${p2done ? 'done' : ''}" data-task="${t.id}" data-player="p2" title="${state.players.p2}">✓</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `<p class="legend">TDM = Tour du Monde · Tornade = Tornade des Donjons — fils rouges de la progression</p>`;
+  container.innerHTML = html;
+
+  container.querySelectorAll('.check-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const taskId = btn.dataset.task;
+      const player = btn.dataset.player;
+      const current = taskDone(taskId, player);
+      saveProgress(taskId, player, !current);
+    });
+  });
+}
+
+function renderClasses() {
+  const container = document.getElementById('classesTab');
+  let html = `<p class="section-title">Duos complémentaires suggérés</p>`;
+  CLASSDATA.duos.forEach(d => {
+    html += `<div class="glass duo-card">
+      <p class="duo-title">${d.title}</p>
+      <div class="duo-classes">${d.classes.map(c => `<span class="duo-pill">${c}</span>`).join('')}</div>
+      <p class="duo-why">${d.why}</p>
+    </div>`;
+  });
+  html += `<p class="section-title">Les 19 classes</p><div class="class-grid">`;
+  CLASSDATA.classes.forEach(c => {
+    html += `<div class="glass class-card">
+      <p class="cname">${c.name}</p>
+      <p class="crole">${c.role}</p>
+      <p class="cdesc">${c.desc}</p>
+    </div>`;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function render() {
+  document.getElementById('p1NameDisplay').textContent = state.players.p1;
+  document.getElementById('p2NameDisplay').textContent = state.players.p2;
+  renderRoadmap();
+  renderClasses();
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.dataset.tab;
+    document.getElementById('roadmapTab').style.display = target === 'roadmap' ? 'block' : 'none';
+    document.getElementById('classesTab').style.display = target === 'classes' ? 'block' : 'none';
+  });
+});
+
+// Settings modal
+document.getElementById('openSettings').addEventListener('click', () => {
+  document.getElementById('p1Input').value = state.players.p1;
+  document.getElementById('p2Input').value = state.players.p2;
+  document.getElementById('settingsModal').style.display = 'flex';
+});
+document.getElementById('cancelSettings').addEventListener('click', () => {
+  document.getElementById('settingsModal').style.display = 'none';
+});
+document.getElementById('saveSettings').addEventListener('click', () => {
+  const p1 = document.getElementById('p1Input').value.trim();
+  const p2 = document.getElementById('p2Input').value.trim();
+  savePlayers(p1, p2);
+  document.getElementById('settingsModal').style.display = 'none';
+});
+
+loadState();
+</script>
+</body>
+</html>
