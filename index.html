@@ -405,6 +405,30 @@ document.getElementById('saveSettings').addEventListener('click', () => {
 });
 
 loadState();
+
+// Temps réel : écoute les changements faits par l'autre joueur
+if (sbClient) {
+  sbClient.channel('progress-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, (payload) => {
+      const row = payload.new;
+      if (row && row.task_id) {
+        if (!state.progress[row.task_id]) state.progress[row.task_id] = {};
+        state.progress[row.task_id][row.player] = row.done;
+        render();
+      }
+    })
+    .subscribe();
+
+  sbClient.channel('players-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, (payload) => {
+      const row = payload.new;
+      if (row && row.slot) {
+        state.players[row.slot] = row.name;
+        render();
+      }
+    })
+    .subscribe();
+}
 </script>
 </body>
 </html>
